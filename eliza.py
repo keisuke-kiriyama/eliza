@@ -4,34 +4,31 @@ import random
 
 class eliza:
   def __init__(self):
-    self.keys = map(lambda x:re.compile(x[0], re.IGNORECASE),gPats)
-    self.values = map(lambda x:x[1],gPats)
+    self.keys = list(map(lambda x:re.compile(x[0], re.IGNORECASE),gPats))
+    self.values = list(map(lambda x:x[1],gPats))
 
   def translate(self, str, dict):
-    words = string.split(string.lower(str))
-    keys = dict.keys();
+    words = str.lower().split()
+    #words = string.split(string.lower(str))
+    keys = dict.keys()
     for i in range(0,len(words)):
       if words[i] in keys:
          words[i] = dict[words[i]]
-    return string.join(words)
+    return " ".join(words)
 
 
   def respond(self,str):
-    # find a match among keys
     for i in range(0,len(self.keys)):
       match = self.keys[i].match(str)
       if match:
-        # found a match ... stuff with corresponding value
-        # chosen randomly from among the available options
         resp = random.choice(self.values[i])
-        # we've got a response... stuff in reflected text where indicated
-        pos = string.find(resp,'%')
+        pos = resp.find('%')
         while pos > -1:
-          num = string.atoi(resp[pos+1:pos+2])
+          num = int(resp[pos+1:pos+2])
           resp = resp[:pos] + \
             self.translate(match.group(num),gReflections) + \
             resp[pos+2:]
-          pos = string.find(resp,'%')
+          pos = resp.find('%')
         # fix munged punctuation at the end
         if resp[-2:] == '?.': resp = resp[:-2] + '.'
         if resp[-2:] == '??': resp = resp[:-2] + '?'
@@ -57,23 +54,62 @@ gReflections = {
 
 gPats = [
     [r'(.*) alike',
-     [ "In what way?",
-       "What resemblance do you see?"]],
+     [ "In what way?"]],
 
     [r'(.*) always',
-     ["Can you think of a specific example?"],
-     ["When?"],
-     ["Really, always?"],
+     ["Can you think of a specific example?"]],
 
      [r'(.*) made(.*)',
-      ["made"]
-      ]
+      ["%1 made %2"]],
 
-    ]
+    [r'(.*) depressed (.*)',
+     ["I'm sorry to hear you are depressed."]],
+
+    [r'(.*) unhappy',
+     ['Do you think coming here will help you not to be unhappy?']],
+
+    [r'(.*) help',
+     ['What would it mean to you if you got some help?']],
+
+    [r'(.*) mother',
+     ['Tell me more about your family .',
+     'Who else in your family takes care of you?']],
+
+    [r'(.*) father',
+     ['%1 father',
+     'What resemblance do you see?']]
+
 ]
 
 
 # gPats = [
+#
+#   [r'(.*) alike',
+#   [ "In what way?"]],
+#
+#   [r'(.*) always',
+#   ["Can you think of a specific example?"]],
+#
+#   [r'(.*) made(.*)',
+#   ["%1 made %2"]],
+#
+#   [r'(.*) depressed (.*)',
+#   ["I'm sorry to hear you are depressed."]],
+#
+#   [r'(.*) unhappy',
+#   ['Do you think coming here will help you not to be unhappy?']],
+#
+#   [r'(.*) help',
+#   ['What would it mean to you if you got some help?']],
+#
+#   [r'(.*) mother',
+#   ['Tell me more about your family .',
+#   'Who else in your family takes care of you?']],
+#
+#   [r'(.*) father',
+#   ['%1 father',
+#   'What resemblance do you see?'],
+#
 #   [r'I need (.*)',
 #   [ "Why do you need %1?",
 #     "Would it really help you to get %1?",
@@ -285,7 +321,7 @@ def command_interface():
   print("Talk to the program by typing in plain English, using normal upper-")
   print('and lower-case letters and punctuation.  Enter "quit" when done.')
   print('='*72)
-  print("Hello.  How are you feeling today?")
+  #print("Hello.  How are you feeling today?")
   s = ""
   therapist = eliza()
   while s != "quit":
